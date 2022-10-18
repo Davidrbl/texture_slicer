@@ -40,8 +40,8 @@ void bmp_load(const char** addresses, uint32_t num_addresses, uint8_t** bitmap, 
             bitmap_initted = true;
         }
 
-        fseek(fp, bmp_offset, SEEK_SET);
         for (uint8_t j = 0; j < 7; j++){
+            fseek(fp, bmp_offset, SEEK_SET);
             fread(*bitmap + insert_offset, map_size, sizeof(uint8_t), fp);
             insert_offset += map_size;
         }
@@ -51,7 +51,6 @@ void bmp_load(const char** addresses, uint32_t num_addresses, uint8_t** bitmap, 
         fclose(fp);
     }
 
-    printf("insert_offset: %u\n", insert_offset);
 }
 
 uint8_t value_in_bmp(uint8_t* bmp, uint32_t bmp_res, float x, float y, float z){
