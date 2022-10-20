@@ -39,7 +39,7 @@ void GLAPIENTRY gl_debug_callback(
             source, type, id, severity, length, message, userParam);
 }
 
-int main(int32_t argc, char* argv[])
+int main()
 {
     if (!glfwInit()) panic(1, "GLFW init fail!\n");
 
@@ -298,6 +298,7 @@ int main(int32_t argc, char* argv[])
     }
 
     free(vert_data);
+    free(bitmap_data);
 
     glfwDestroyWindow(window);
     glfwTerminate();
