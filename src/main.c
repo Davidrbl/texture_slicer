@@ -235,42 +235,65 @@ int main(int32_t argc, char* argv[])
     mat4 view_matrix =          GLM_MAT4_IDENTITY_INIT;
     mat4 projection_matrix =    GLM_MAT4_IDENTITY_INIT;
 
-    vec3 cam_pos = GLM_VEC3_ZERO_INIT;
-    vec3 cam_for = GLM_VEC3_ZERO_INIT;
+    vec3 cam_pos = {0.0, 0.0, 5.0};
+    vec3 cam_for = {0.0, 0.0, -1.0};
     vec2 cam_rot = GLM_VEC2_ZERO_INIT;
 
-
-
     glm_perspective(90.0, window_width/window_height, 0.001f, 100.00f, projection_matrix);
-    glm_lookat(GLM_VEC3_ZERO, GLM_VEC3_ONE, (vec3){0.0, 1.0, 0.0}, view_matrix);
+
+    double frame_begin_time = glfwGetTime();
+    double dt = 0.0;
 
     while (!glfwWindowShouldClose(window))
     {
+        frame_begin_time = glfwGetTime();
+
         glfwPollEvents();
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, 1);
 
         if (glfwGetKey(window, GLFW_KEY_UP)) depth += 0.01;
         if (glfwGetKey(window, GLFW_KEY_DOWN)) depth -= 0.01;
 
+        double time = glfwGetTime();
+
+        
+        if (vert_data) free(vert_data);
+
+        gen_tex_slices(
+            (vec3){sinf(time), 0.0, cosf(time)},
+            0, &vert_data, &vert_size, NULL, NULL
+        );
+
+        glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
+
         glUseProgram(main_program);
 
         glBindVertexArray(main_VAO);
 
+
+
+        glm_look(cam_pos, cam_for, (vec3){0.0, 1.0, 0.0}, view_matrix);
+
+        glUniform1i(glGetUniformLocation(main_program, "texture_ID"), 0);
         glUniformMatrix4fv(glGetUniformLocation(main_program, "model"), 1, GL_FALSE, &model_matrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(main_program, "view"), 1, GL_FALSE, &view_matrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(main_program, "projection"), 1, GL_FALSE, &projection_matrix[0][0]);
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vert_size/6/sizeof(sizeof(float)));
+        // TODO: (david) set the first vertex of the slice to the view_dir * dl, and then use that to create every triangle, maybe...
+        glDrawArrays(GL_TRIANGLE_FAN, 0, vert_size/6/sizeof(sizeof(float)));
 
         // glUseProgram(texture_view_program);
         // glBindVertexArray(texture_VAO);
-        // glUniform1i(glGetUniformLocation(texture_view_program, "texture_ID"), 0);
         // glUniform1f(glGetUniformLocation(texture_view_program, "depth"), depth);
 
         // glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window);
+
+        dt = glfwGetTime() - frame_begin_time;
     }
 
     free(vert_data);
