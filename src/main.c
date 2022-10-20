@@ -219,6 +219,7 @@ int main(int32_t argc, char* argv[])
 
     VAO_t main_VAO;
     glCreateVertexArrays(1, &main_VAO);
+    glBindVertexArray(main_VAO);
     glEnableVertexArrayAttrib(main_VAO, 0);
     glVertexArrayAttribBinding(main_VAO, 0, 0);
     glVertexArrayAttribFormat(main_VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
