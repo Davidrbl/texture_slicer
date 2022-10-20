@@ -296,7 +296,7 @@ int main(int32_t argc, char* argv[])
         glUniformMatrix4fv(glGetUniformLocation(main_program, "projection"), 1, GL_FALSE, &projection_matrix[0][0]);
 
         // TODO: (david) set the first vertex of the slice to the view_dir * dl, and then use that to create every triangle, maybe...
-        glDrawArrays(GL_TRIANGLE_FAN, 0, vert_size/6/sizeof(sizeof(float)));
+        glDrawArrays(GL_TRIANGLE_FAN, 0, vert_size/6/sizeof(float));
 
         // glUseProgram(texture_view_program);
         // glBindVertexArray(texture_VAO);
