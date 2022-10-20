@@ -213,22 +213,31 @@ int main(int32_t argc, char* argv[])
 
     gen_tex_slices(view_dir, 1, &vert_data, &vert_size, NULL, NULL);
 
-    Buffer_t main_VBO;
-    glCreateBuffers(1, &main_VBO);
-    glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
+    // glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
     VAO_t main_VAO;
-    glCreateVertexArrays(1, &main_VAO);
+    // glCreateVertexArrays(1, &main_VAO);
+    glGenVertexArrays(1, &main_VAO);
     glBindVertexArray(main_VAO);
-    glEnableVertexArrayAttrib(main_VAO, 0);
-    glVertexArrayAttribBinding(main_VAO, 0, 0);
-    glVertexArrayAttribFormat(main_VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+    Buffer_t main_VBO;
+    glGenBuffers(1, &main_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, main_VBO);
+    glBufferData(GL_ARRAY_BUFFER, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
-    glEnableVertexArrayAttrib(main_VAO, 1);
-    glVertexArrayAttribBinding(main_VAO, 1, 0);
-    glVertexArrayAttribFormat(main_VAO, 1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float));
+    // glEnableVertexArrayAttrib(main_VAO, 0);
+    // glVertexArrayAttribBinding(main_VAO, 0, 0);
+    // glVertexArrayAttribFormat(main_VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
 
-    glVertexArrayVertexBuffer(main_VAO, 0, main_VBO, 0, 6*sizeof(float));
+    // glEnableVertexArrayAttrib(main_VAO, 1);
+    // glVertexArrayAttribBinding(main_VAO, 1, 0);
+    // glVertexArrayAttribFormat(main_VAO, 1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float));
+
+    // glVertexArrayVertexBuffer(main_VAO, 0, main_VBO, 0, 6*sizeof(float));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), 3*sizeof(float));
+    glEnableVertexAttribArray(1);
+
 
     float depth = 0.0;
 
@@ -268,7 +277,9 @@ int main(int32_t argc, char* argv[])
             0, &vert_data, &vert_size, NULL, NULL
         );
 
-        glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
+        // glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, main_VBO);
+        glBufferData(GL_ARRAY_BUFFER, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
         glUseProgram(main_program);
 
