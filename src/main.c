@@ -181,28 +181,28 @@ int main(int32_t argc, char* argv[])
 
     glBindTextureUnit(0, bmp_tex);
 
-    float vertices[] = {
-        -1.0, -1.0,
-         1.0, -1.0,
-        -1.0,  1.0,
+    // float vertices[] = {
+    //     -1.0, -1.0,
+    //      1.0, -1.0,
+    //     -1.0,  1.0,
 
-         1.0,  1.0,
-        -1.0,  1.0,
-         1.0, -1.0
-    };
+    //      1.0,  1.0,
+    //     -1.0,  1.0,
+    //      1.0, -1.0
+    // };
 
-    Buffer_t texture_VBO;
-    VAO_t texture_VAO;
-    glCreateBuffers(1, &texture_VBO);
-    glCreateVertexArrays(1, &texture_VAO);
+    // Buffer_t texture_VBO;
+    // VAO_t texture_VAO;
+    // glCreateBuffers(1, &texture_VBO);
+    // glCreateVertexArrays(1, &texture_VAO);
     
-    glNamedBufferData(texture_VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // glNamedBufferData(texture_VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glEnableVertexArrayAttrib(texture_VAO, 0);
-    glVertexArrayAttribBinding(texture_VAO, 0, 0);
-    glVertexArrayAttribFormat(texture_VAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
+    // glEnableVertexArrayAttrib(texture_VAO, 0);
+    // glVertexArrayAttribBinding(texture_VAO, 0, 0);
+    // glVertexArrayAttribFormat(texture_VAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
 
-    glVertexArrayVertexBuffer(texture_VAO, 0, texture_VBO, 0, 2 * sizeof(float));
+    // glVertexArrayVertexBuffer(texture_VAO, 0, texture_VBO, 0, 2 * sizeof(float));
 
     vec3 view_dir = {
         1.0, 0.0, 0.0
