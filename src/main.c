@@ -230,8 +230,6 @@ int main()
 
     glVertexArrayVertexBuffer(main_VAO, 0, main_VBO, 0, 6*sizeof(float));
 
-    float depth = 0.0;
-
     mat4 model_matrix =         GLM_MAT4_IDENTITY_INIT;
     mat4 view_matrix =          GLM_MAT4_IDENTITY_INIT;
     mat4 projection_matrix =    GLM_MAT4_IDENTITY_INIT;
@@ -251,30 +249,58 @@ int main()
 
         glfwPollEvents();
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, 1);
 
-        if (glfwGetKey(window, GLFW_KEY_UP)) depth += 0.01;
-        if (glfwGetKey(window, GLFW_KEY_DOWN)) depth -= 0.01;
+        const float ROTATION_SPEED = 1.0;
+        const float CAMERA_SPEED = 4.0;
+
+        {
+            cam_rot[0] += (glfwGetKey(window, GLFW_KEY_I) - glfwGetKey(window, GLFW_KEY_K)) * dt * ROTATION_SPEED;
+            cam_rot[1] += (glfwGetKey(window, GLFW_KEY_J) - glfwGetKey(window, GLFW_KEY_L)) * dt * ROTATION_SPEED;
+
+            float tmp = cosf(cam_rot[0]);
+
+            cam_for[0] = sinf(-cam_rot[1]) * tmp;
+            cam_for[1] = sinf(cam_rot[0]);
+            cam_for[2] = -cosf(cam_rot[1]) * tmp;
+
+            // W and S
+            float mul = (float)(glfwGetKey(window, GLFW_KEY_S) - glfwGetKey(window, GLFW_KEY_W));
+
+            cam_pos[0] += sinf(cam_rot[1]) * mul * CAMERA_SPEED * dt;
+            cam_pos[2] += cosf(cam_rot[1]) * mul * CAMERA_SPEED * dt;
+
+            // A and D
+            mul = (float)(glfwGetKey(window, GLFW_KEY_D) - glfwGetKey(window, GLFW_KEY_A));
+
+            cam_pos[0] += cosf(cam_rot[1]) * mul * CAMERA_SPEED * dt;
+            cam_pos[2] += -sinf(cam_rot[1]) * mul * CAMERA_SPEED * dt;
+
+            // Space and shift
+            mul = (float)(glfwGetKey(window, GLFW_KEY_SPACE) - glfwGetKey(window, GLFW_KEY_LEFT_SHIFT));
+            cam_pos[1] += mul * CAMERA_SPEED * dt;
+        }
 
         double time = glfwGetTime();
 
-        
         if (vert_data) free(vert_data);
 
+        vec3 plane_normal = GLM_VEC3_ZERO_INIT;
+        glm_vec3_sub(cam_pos, plane_normal, plane_normal);
+        glm_vec3_normalize(plane_normal);
+
         gen_tex_slices(
-            (vec3){sinf(time), 0.0, cosf(time)},
+            plane_normal,
             0, &vert_data, &vert_size, NULL, NULL
         );
 
         glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         glUseProgram(main_program);
 
         glBindVertexArray(main_VAO);
-
-
 
         glm_look(cam_pos, cam_for, (vec3){0.0, 1.0, 0.0}, view_matrix);
 
