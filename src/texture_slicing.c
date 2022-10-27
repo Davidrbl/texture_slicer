@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <math.h>
 #include <assert.h>
+#include <string.h>
+
+#define SLICE_DEBUG_PRINT
 
 #define MAX_VERTS_PER_SLICE 6
 
@@ -130,15 +133,22 @@ void shortest_path(vec3 vertices[MAX_VERTS_PER_SLICE], int n, int* best_route)
 }
  
 
-void gen_tex_slices(
+void slice(
     vec3 view_dir,
-    uint32_t num_slices,
-    float** vert_data,
+    float dl,
+    float* vert_data,
     uint32_t* vert_size,
-    uint32_t** index_data,
-    uint32_t* index_size
+    uint32_t vert_offset
 )
 {
+    #ifdef SLICE_DEBUG_PRINT
+    printf(
+        "slice() called with:\n\tview_dir -> %f %f %f\n\tdl -> %f\n", 
+        view_dir[0], view_dir[1], view_dir[2],
+        dl     
+    );
+    #endif
+
     vec3 cube_verts[8] = {
                             // xyz
         {-1.0, -1.0, -1.0}, // ---
@@ -189,8 +199,6 @@ void gen_tex_slices(
         Vj[1] = cube_verts[Vj_index][1];
         Vj[2] = cube_verts[Vj_index][2];
 
-        float dl = 0.0;
-
         vec3 dV;
         glm_vec3_sub(Vj, Vi, dV);
 
@@ -211,43 +219,20 @@ void gen_tex_slices(
             intersection_edges[num_intersections][1] = Vj_index;
             t_intersection[num_intersections] = t;
             num_intersections++;
-            // printf("between vertex %hhu and %hhu, t = %f\n", Vi_index, Vj_index, t);
+
+#ifdef SLICE_DEBUG_PRINT
+            printf("between vertex %hhu and %hhu, t = %f\n", Vi_index, Vj_index, t);
+#endif
         }
     }
 
     *vert_size = num_intersections * 6*sizeof(float);
-    *vert_data = malloc(*vert_size);
+    // *vert_data = malloc(*vert_size);
 
-    // printf("num_intersections = %u\nvert_size = %u\n", num_intersections, *vert_size);
-
+#ifdef SLICE_DEBUG_PRINT
+    printf("num_intersections = %u\nvert_size = %u\n", num_intersections, *vert_size);
+#endif
     uint32_t vertex_offset = 0;
-
-    // for (uint8_t i = 0; i < 12; i++)
-    // {
-    //     if (!intersections[i]) continue;
-    //     float t = t_intersection[i];
-
-    //     vec3 intersection_pos;
-    //     vec3 tex_coord;
-    //     vec3 Vi;
-    //     vec3 Vj;
-
-    //     uint8_t Vi_index = cube_edges[i][0];
-    //     uint8_t Vj_index = cube_edges[i][1];
-
-    //     glm_vec3_copy(cube_verts[Vi_index], Vi);
-    //     glm_vec3_copy(cube_verts[Vj_index], Vj);
-
-    //     glm_vec3_lerp(Vi, Vj, t, intersection_pos);
-    //     glm_vec3_copy(intersection_pos, tex_coord);
-    //     glm_vec3_adds(tex_coord, 1.0, tex_coord);
-    //     glm_vec3_divs(tex_coord, 2.0, tex_coord);
-
-    //     glm_vec3_copy(intersection_pos, (*vert_data)+vertex_offset);
-    //     vertex_offset += 3;
-    //     glm_vec3_copy(tex_coord,        (*vert_data)+vertex_offset);
-    //     vertex_offset += 3;
-    // }
 
     vec3 positions[MAX_VERTS_PER_SLICE];
     int32_t shortest_route[MAX_VERTS_PER_SLICE];
@@ -276,7 +261,7 @@ void gen_tex_slices(
 
     for (uint32_t i = 0; i < num_intersections; i++)
     {
-        uint32_t position_index = shortest_route[i]; // actually not a complete vertex, just a position
+        uint32_t position_index = shortest_route[i]; 
         
         vec3 vertex_pos;
         glm_vec3_copy(positions[position_index], vertex_pos);
@@ -286,9 +271,99 @@ void gen_tex_slices(
         glm_vec3_adds(vertex_tex_coord, 1.0, vertex_tex_coord);
         glm_vec3_divs(vertex_tex_coord, 2.0, vertex_tex_coord);
 
-        glm_vec3_copy(vertex_pos, (*vert_data)+vertex_offset);
-        vertex_offset += 3;
-        glm_vec3_copy(vertex_tex_coord, (*vert_data)+vertex_offset);
-        vertex_offset += 3;
+        vert_data[vert_offset++] = vertex_pos[0];
+        vert_data[vert_offset++] = vertex_pos[1];
+        vert_data[vert_offset++] = vertex_pos[2];
+
+        vert_data[vert_offset++] = vertex_tex_coord[0];
+        vert_data[vert_offset++] = vertex_tex_coord[1];
+        vert_data[vert_offset++] = vertex_tex_coord[2];
+
+        // glm_vec3_copy(vertex_pos, vert_data+vertex_offset);
+        // vertex_offset += 3;
+        // glm_vec3_copy(vertex_tex_coord, vert_data+vertex_offset);
+        // vertex_offset += 3;
     }
+}
+
+void gen_texture_slices(
+    vec3 normal,
+    uint32_t num_slices,
+    float** vert_data,
+    uint32_t* vert_size,
+    uint32_t* slice_len
+)
+{
+    // float max_dl = -sqrt(3); // this one is the furthest away from the camera
+    // float min_dl = sqrt(3); // this one is the closest to the camera
+
+    // // sqrt(3) because the furthest point on the cube from the center of the the cube
+
+    // uint32_t vert_offset = 0;
+
+    // for (uint32_t i = 0; i < num_slices; i++)
+    // {
+    //     float dl = 0.0;
+    //     // if (num_slices > 1) 
+    //     dl = glm_lerp(max_dl, min_dl, i/(float)(num_slices-1));
+    //     printf("for slice %u dl -> %f\n", i, dl);
+    //     // if num_slices == 1, dl == 0.0, otherwise it just goes from max_dl to min_dl
+
+    //     uint32_t slice_size = 0;
+
+    //     float* slice_vert_data = NULL;
+
+    //     slice(
+    //         normal,
+    //         dl,
+    //         &slice_vert_data,
+    //         &slice_size,
+    //         0
+    //     );
+
+    //     slice_len[i] = slice_size;
+
+    //     realloc(*vert_data, vert_offset + slice_size);
+
+    //     memcpy(
+    //         *vert_data + vert_offset,       // dest
+    //         slice_vert_data,                // from
+    //         slice_size                      // size
+    //     );
+
+    //     free(slice_vert_data);
+
+    //     vert_offset += slice_size;
+
+    //     printf("slice %u: size -> %u\n", i, slice_size);
+    // }
+
+    *vert_data = malloc(num_slices * MAX_VERTS_PER_SLICE * (6*sizeof(float))); // number of slices * max ammount of verts per slice * size of vert
+    *vert_size = num_slices * MAX_VERTS_PER_SLICE * 6 * sizeof(float);
+
+    float max_dl = -sqrt(3); // this one is the furthest away from the camera
+    float min_dl = sqrt(3); // this one is the closest to the camera
+    
+    for (uint32_t i = 0; i < num_slices; i++)
+    {
+        uint32_t vertex_offset = i * MAX_VERTS_PER_SLICE * 6;
+
+        float dl = glm_lerp(max_dl, min_dl, i/(float)num_slices);
+
+        uint32_t slice_size = 0;
+
+        printf("slice() with dl = %f and offset %u\n", dl, vertex_offset);
+
+        slice(
+            normal,
+            dl,
+            *vert_data,
+            &slice_size,
+            vertex_offset
+        );
+
+        slice_len[i] = slice_size;
+        // *vert_size += slice_size;
+    }
+
 }

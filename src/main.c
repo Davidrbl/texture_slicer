@@ -46,6 +46,9 @@ int main()
     uint32_t window_width = 1024;
     uint32_t window_height = 1024;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     GLFWwindow* window = glfwCreateWindow(
         window_width, 
@@ -76,15 +79,29 @@ int main()
         &main_program
     );
 
-    uint32_t texture_view_program;
-    create_program(
-        "src/shaders/texture.vert",
-        NULL,
-        NULL,
-        NULL,
-        "src/shaders/texture.frag",
-        &texture_view_program
-    );
+    // uint32_t test_compute_program;
+    // create_program_compute(
+    //     "src/shaders/test.comp",
+    //     &test_compute_program
+    // );
+
+    // uint32_t test_counter = 0;
+
+    // uint32_t test_counter_buffer;
+    // glCreateBuffers(1, &test_counter_buffer);
+    // glNamedBufferData(test_counter_buffer, sizeof(uint32_t), &test_counter, GL_DYNAMIC_READ);
+    // glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, test_counter_buffer);
+    // // glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, test_counter_buffer, 0, sizeof(uint32_t));
+
+    // glUseProgram(test_compute_program);
+    // glDispatchCompute(10, 10, 10);
+    // glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    // uint32_t* result = glMapNamedBuffer(test_counter_buffer, GL_READ_ONLY);
+
+    // printf("counter -> %u\n", *result);
+
+    // glUnmapNamedBuffer(test_counter_buffer);
 
     const char* addresses[] = {
         "ct/I36.bmp",
@@ -165,11 +182,11 @@ int main()
 
     Texture_t bmp_tex;
     glCreateTextures(GL_TEXTURE_3D, 1, &bmp_tex);
-    glTextureStorage3D(bmp_tex, 1, GL_R8, bitmap_res, bitmap_res, bitmap_res);
+    glTextureStorage3D(bmp_tex, 1, GL_R8, bitmap_res, bitmap_res, num_addresses);
     glTextureSubImage3D(
         bmp_tex, 0,
         0, 0, 0,
-        bitmap_res, bitmap_res, bitmap_res,
+        bitmap_res, bitmap_res, num_addresses,
         GL_RED, GL_UNSIGNED_BYTE,
         bitmap_data
     );
@@ -182,37 +199,36 @@ int main()
 
     glBindTextureUnit(0, bmp_tex);
 
-    // float vertices[] = {
-    //     -1.0, -1.0,
-    //      1.0, -1.0,
-    //     -1.0,  1.0,
-
-    //      1.0,  1.0,
-    //     -1.0,  1.0,
-    //      1.0, -1.0
-    // };
-
-    // Buffer_t texture_VBO;
-    // VAO_t texture_VAO;
-    // glCreateBuffers(1, &texture_VBO);
-    // glCreateVertexArrays(1, &texture_VAO);
-    
-    // glNamedBufferData(texture_VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // glEnableVertexArrayAttrib(texture_VAO, 0);
-    // glVertexArrayAttribBinding(texture_VAO, 0, 0);
-    // glVertexArrayAttribFormat(texture_VAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
-
-    // glVertexArrayVertexBuffer(texture_VAO, 0, texture_VBO, 0, 2 * sizeof(float));
+    uint32_t num_slices = 30;
+    uint32_t* slice_len = malloc(num_slices*sizeof(uint32_t));
 
     vec3 view_dir = {
-        1.0, 0.0, 0.0
+        0.0, 0.0, 1.0
     };
 
     float* vert_data = NULL;
     uint32_t vert_size = 0;
 
-    gen_tex_slices(view_dir, 1, &vert_data, &vert_size, NULL, NULL);
+    gen_texture_slices(
+        view_dir,   // normal
+        num_slices,             // num_slices 
+        &vert_data,     // vert_data 
+        &vert_size,     // vert_size
+        slice_len       // slice_len 
+    );
+
+    printf("%u\n", vert_size);
+    for (uint32_t i = 0; i < vert_size/6/sizeof(float); i++)
+    {
+        printf("vertex %u:\n", i);
+        printf("\tpos -> %f\n", vert_data[i*6 + 0]);
+        printf("\tpos -> %f\n", vert_data[i*6 + 1]);
+        printf("\tpos -> %f\n", vert_data[i*6 + 2]);
+
+        printf("\ttex -> %f\n", vert_data[i*6 + 3]);
+        printf("\ttex -> %f\n", vert_data[i*6 + 4]);
+        printf("\ttex -> %f\n", vert_data[i*6 + 5]);
+    }
 
     Buffer_t main_VBO;
     glCreateBuffers(1, &main_VBO);
@@ -243,11 +259,14 @@ int main()
     double frame_begin_time = glfwGetTime();
     double dt = 0.0;
 
+
     while (!glfwWindowShouldClose(window))
     {
         frame_begin_time = glfwGetTime();
 
         glfwPollEvents();
+
+
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, 1);
 
@@ -283,20 +302,33 @@ int main()
 
         double time = glfwGetTime();
 
-        if (vert_data) free(vert_data);
+        // if (vert_data) free(vert_data);
 
-        vec3 plane_normal = GLM_VEC3_ZERO_INIT;
-        glm_vec3_sub(cam_pos, plane_normal, plane_normal);
-        glm_vec3_normalize(plane_normal);
+        // vec3 view_dir = GLM_VEC3_ZERO_INIT;
+        // glm_vec3_zero(view_dir);
+        // glm_vec3_sub(cam_pos, view_dir, view_dir);
+        // glm_vec3_normalize(view_dir);
 
-        gen_tex_slices(
-            plane_normal,
-            0, &vert_data, &vert_size, NULL, NULL
-        );
+        // void gen_texture_slices(
+        //     vec3 normal,
+        //     uint32_t num_slices,
+        //     float** vert_data,
+        //     uint32_t vert_size,
+        //     uint32_t* slice_len
+        // )
 
-        glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
+        // gen_texture_slices(
+        //     view_dir,   // normal
+        //     num_slices,             // num_slices 
+        //     &vert_data,     // vert_data 
+        //     &vert_size,     // vert_size
+        //     slice_len       // slice_len 
+        // );
+
+        // glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
         glUseProgram(main_program);
 
@@ -305,18 +337,24 @@ int main()
         glm_look(cam_pos, cam_for, (vec3){0.0, 1.0, 0.0}, view_matrix);
 
         glUniform1i(glGetUniformLocation(main_program, "texture_ID"), 0);
+        glUniform1f(glGetUniformLocation(main_program, "alpha"), 1/(float)num_slices);
         glUniformMatrix4fv(glGetUniformLocation(main_program, "model"), 1, GL_FALSE, &model_matrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(main_program, "view"), 1, GL_FALSE, &view_matrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(main_program, "projection"), 1, GL_FALSE, &projection_matrix[0][0]);
 
         // TODO: (david) set the first vertex of the slice to the view_dir * dl, and then use that to create every triangle, maybe...
-        glDrawArrays(GL_TRIANGLE_FAN, 0, vert_size/6/sizeof(float));
 
-        // glUseProgram(texture_view_program);
-        // glBindVertexArray(texture_VAO);
-        // glUniform1f(glGetUniformLocation(texture_view_program, "depth"), depth);
+        // glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        for (uint32_t i = 0; i < num_slices; i++)
+        {
+            uint32_t vert_begin = MAX_VERTS_PER_SLICE*i;
+            uint32_t vert_count = slice_len[i]/6/sizeof(float);
 
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
+            // printf("drawing the %u'th slice with %u vertices\n", i, vert_count);
+
+            glDrawArrays(GL_TRIANGLE_FAN, vert_begin, vert_count);
+            // vert_begin += slice_len[i];
+        }
 
         glfwSwapBuffers(window);
 

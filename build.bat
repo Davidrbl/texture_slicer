@@ -1,5 +1,5 @@
 @echo off
-set flags=-Wall
+set flags=-Wall -g
 set INCLUDE_FOLDER=./include
 @echo on
 

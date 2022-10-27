@@ -9,4 +9,4 @@ gcc -c ./src/gl.c %flags% -I %INCLUDE_FOLDER% -o obj/gl.o
 gcc -c ./src/bmp_imp.c %flags% -I %INCLUDE_FOLDER% -o obj/bmp_imp.o
 gcc -c ./src/texture_slicing.c %flags% -I %INCLUDE_FOLDER% -o obj/texture_slicing.o
 
-gcc obj/main.o obj/shader.o obj/gl.o obj/bmp_imp.o obj/texture_slicing.o -lglfw3 -o main.exe
+gcc obj/main.o obj/shader.o obj/gl.o obj/bmp_imp.o obj/texture_slicing.o glfw3.dll -o main.exe
