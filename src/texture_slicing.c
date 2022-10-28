@@ -338,8 +338,8 @@ void gen_texture_slices(
     //     printf("slice %u: size -> %u\n", i, slice_size);
     // }
 
-    *vert_data = malloc(num_slices * MAX_VERTS_PER_SLICE * (6*sizeof(float))); // number of slices * max ammount of verts per slice * size of vert
-    *vert_size = num_slices * MAX_VERTS_PER_SLICE * 6 * sizeof(float);
+    // *vert_data = malloc(num_slices * MAX_VERTS_PER_SLICE * (6*sizeof(float))); // number of slices * max ammount of verts per slice * size of vert
+    // *vert_size = num_slices * MAX_VERTS_PER_SLICE * 6 * sizeof(float);
 
     float max_dl = -sqrt(3); // this one is the furthest away from the camera
     float min_dl = sqrt(3); // this one is the closest to the camera

@@ -68,6 +68,7 @@ int main()
     glDebugMessageCallback(gl_debug_callback, NULL);
 
     glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     uint32_t main_program;
     create_program(
@@ -199,7 +200,7 @@ int main()
 
     glBindTextureUnit(0, bmp_tex);
 
-    uint32_t num_slices = 30;
+    uint32_t num_slices = 300;
     uint32_t* slice_len = malloc(num_slices*sizeof(uint32_t));
 
     vec3 view_dir = {
@@ -208,6 +209,9 @@ int main()
 
     float* vert_data = NULL;
     uint32_t vert_size = 0;
+
+    vert_data = malloc(num_slices * MAX_VERTS_PER_SLICE * (6*sizeof(float))); // number of slices * max ammount of verts per slice * size of vert
+    vert_size = num_slices * MAX_VERTS_PER_SLICE * 6 * sizeof(float);
 
     gen_texture_slices(
         view_dir,   // normal
@@ -305,9 +309,9 @@ int main()
         // if (vert_data) free(vert_data);
 
         // vec3 view_dir = GLM_VEC3_ZERO_INIT;
-        // glm_vec3_zero(view_dir);
-        // glm_vec3_sub(cam_pos, view_dir, view_dir);
-        // glm_vec3_normalize(view_dir);
+        glm_vec3_zero(view_dir);
+        glm_vec3_sub(cam_pos, view_dir, view_dir);
+        glm_vec3_normalize(view_dir);
 
         // void gen_texture_slices(
         //     vec3 normal,
@@ -325,7 +329,14 @@ int main()
         //     slice_len       // slice_len 
         // );
 
-        // glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
+        gen_texture_slices(
+            view_dir,   // normal
+            num_slices,             // num_slices 
+            &vert_data,     // vert_data 
+            &vert_size,     // vert_size
+            slice_len       // slice_len 
+        );
+        glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
