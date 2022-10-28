@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define SLICE_DEBUG_PRINT
+// #define SLICE_DEBUG_PRINT
 
 #define MAX_VERTS_PER_SLICE 6
 
@@ -351,8 +351,6 @@ void gen_texture_slices(
         float dl = glm_lerp(max_dl, min_dl, i/(float)num_slices);
 
         uint32_t slice_size = 0;
-
-        printf("slice() with dl = %f and offset %u\n", dl, vertex_offset);
 
         slice(
             normal,

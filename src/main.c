@@ -217,18 +217,18 @@ int main()
         slice_len       // slice_len 
     );
 
-    printf("%u\n", vert_size);
-    for (uint32_t i = 0; i < vert_size/6/sizeof(float); i++)
-    {
-        printf("vertex %u:\n", i);
-        printf("\tpos -> %f\n", vert_data[i*6 + 0]);
-        printf("\tpos -> %f\n", vert_data[i*6 + 1]);
-        printf("\tpos -> %f\n", vert_data[i*6 + 2]);
+    // printf("%u\n", vert_size);
+    // for (uint32_t i = 0; i < vert_size/6/sizeof(float); i++)
+    // {
+    //     printf("vertex %u:\n", i);
+    //     printf("\tpos -> %f\n", vert_data[i*6 + 0]);
+    //     printf("\tpos -> %f\n", vert_data[i*6 + 1]);
+    //     printf("\tpos -> %f\n", vert_data[i*6 + 2]);
 
-        printf("\ttex -> %f\n", vert_data[i*6 + 3]);
-        printf("\ttex -> %f\n", vert_data[i*6 + 4]);
-        printf("\ttex -> %f\n", vert_data[i*6 + 5]);
-    }
+    //     printf("\ttex -> %f\n", vert_data[i*6 + 3]);
+    //     printf("\ttex -> %f\n", vert_data[i*6 + 4]);
+    //     printf("\ttex -> %f\n", vert_data[i*6 + 5]);
+    // }
 
     Buffer_t main_VBO;
     glCreateBuffers(1, &main_VBO);

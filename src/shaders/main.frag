@@ -13,6 +13,9 @@ void main()
 {
     vec3 uvw = vs_out.tex_coord;
     vec3 col = vec3(texture(texture_ID, uvw).r);
-    FragColor = vec4(col, alpha);
+
+    if (length(col) < 0.1) discard;
+
+    FragColor = vec4(col, 0.0);
     // FragColor = vec4(uvw, 1.0);
 }
