@@ -200,7 +200,7 @@ int main()
 
     glBindTextureUnit(0, bmp_tex);
 
-    uint32_t num_slices = 300;
+    uint32_t num_slices = 400;
     uint32_t* slice_len = malloc(num_slices*sizeof(uint32_t));
 
     vec3 view_dir = {
@@ -280,6 +280,9 @@ int main()
         {
             cam_rot[0] += (glfwGetKey(window, GLFW_KEY_I) - glfwGetKey(window, GLFW_KEY_K)) * dt * ROTATION_SPEED;
             cam_rot[1] += (glfwGetKey(window, GLFW_KEY_J) - glfwGetKey(window, GLFW_KEY_L)) * dt * ROTATION_SPEED;
+
+            if (cam_rot[0] < -0.49*GLM_PIf) cam_rot[0] = -0.49*GLM_PIf;
+            if (cam_rot[0] >  0.49*GLM_PIf) cam_rot[0] =  0.49*GLM_PIf;
 
             float tmp = cosf(cam_rot[0]);
 
