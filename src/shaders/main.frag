@@ -12,10 +12,9 @@ in VS_OUT {
 void main()
 {
     vec3 uvw = vs_out.tex_coord;
-    vec3 col = vec3(texture(texture_ID, uvw).r);
-    // col = vec3(1.0);
+    vec3 col = texture(texture_ID, uvw).rrr;
 
-    if (length(col) < 0.1) discard;
+    // if (length(col) < 0.1) discard;
 
     FragColor = vec4(col, alpha);
     // FragColor = vec4(uvw, 1.0);

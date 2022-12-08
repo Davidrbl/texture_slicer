@@ -232,7 +232,6 @@ void slice(
 #ifdef SLICE_DEBUG_PRINT
     printf("num_intersections = %u\nvert_size = %u\n", num_intersections, *vert_size);
 #endif
-    uint32_t vertex_offset = 0;
 
     vec3 positions[MAX_VERTS_PER_SLICE];
     int32_t shortest_route[MAX_VERTS_PER_SLICE];
@@ -294,53 +293,6 @@ void gen_texture_slices(
     uint32_t* slice_len
 )
 {
-    // float max_dl = -sqrt(3); // this one is the furthest away from the camera
-    // float min_dl = sqrt(3); // this one is the closest to the camera
-
-    // // sqrt(3) because the furthest point on the cube from the center of the the cube
-
-    // uint32_t vert_offset = 0;
-
-    // for (uint32_t i = 0; i < num_slices; i++)
-    // {
-    //     float dl = 0.0;
-    //     // if (num_slices > 1) 
-    //     dl = glm_lerp(max_dl, min_dl, i/(float)(num_slices-1));
-    //     printf("for slice %u dl -> %f\n", i, dl);
-    //     // if num_slices == 1, dl == 0.0, otherwise it just goes from max_dl to min_dl
-
-    //     uint32_t slice_size = 0;
-
-    //     float* slice_vert_data = NULL;
-
-    //     slice(
-    //         normal,
-    //         dl,
-    //         &slice_vert_data,
-    //         &slice_size,
-    //         0
-    //     );
-
-    //     slice_len[i] = slice_size;
-
-    //     realloc(*vert_data, vert_offset + slice_size);
-
-    //     memcpy(
-    //         *vert_data + vert_offset,       // dest
-    //         slice_vert_data,                // from
-    //         slice_size                      // size
-    //     );
-
-    //     free(slice_vert_data);
-
-    //     vert_offset += slice_size;
-
-    //     printf("slice %u: size -> %u\n", i, slice_size);
-    // }
-
-    // *vert_data = malloc(num_slices * MAX_VERTS_PER_SLICE * (6*sizeof(float))); // number of slices * max ammount of verts per slice * size of vert
-    // *vert_size = num_slices * MAX_VERTS_PER_SLICE * 6 * sizeof(float);
-
     float max_dl = -sqrt(3); // this one is the furthest away from the camera
     float min_dl = sqrt(3); // this one is the closest to the camera
     

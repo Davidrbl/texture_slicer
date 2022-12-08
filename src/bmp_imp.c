@@ -60,4 +60,3 @@ uint8_t value_in_bmp(uint8_t* bmp, uint32_t bmp_res, float x, float y, float z){
 
     return bmp[iz*bmp_res*bmp_res + iy*bmp_res + ix];
 }
-
