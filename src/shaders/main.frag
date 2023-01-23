@@ -12,6 +12,7 @@ in VS_OUT {
 void main()
 {
     vec3 uvw = vs_out.tex_coord;
+    // vec3 col = (length(uvw - 0.5) < 0.25 ? 1.0 : 0.0).rrr;//texture(texture_ID, uvw).rrr;
     vec3 col = texture(texture_ID, uvw).rrr;
 
     // if (length(col) < 0.1) discard;

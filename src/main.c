@@ -70,6 +70,8 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glfwSwapInterval(0);
+
     uint32_t main_program;
     create_program(
         "src/shaders/main.vert",
@@ -198,6 +200,8 @@ int main()
     glTextureParameteri(bmp_tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(bmp_tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    glGenerateTextureMipmap(bmp_tex);
+
     glBindTextureUnit(0, bmp_tex);
 
     uint32_t num_slices = 300;
@@ -267,6 +271,8 @@ int main()
     double frame_begin_time = glfwGetTime();
     double dt = 0.0;
 
+    uint64_t frame = 0;
+
     while (!glfwWindowShouldClose(window))
     {
         frame_begin_time = glfwGetTime();
@@ -314,7 +320,7 @@ int main()
         glm_vec3_sub(view_dir, cam_for, view_dir);
 
 
-        if (glm_dot(view_dir, latest_view_dir) < 0.8f)
+        if (glm_dot(view_dir, latest_view_dir) < 0.97f)
         {
             gen_texture_slices(
                 view_dir,   // normal
@@ -327,7 +333,7 @@ int main()
             glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
             glm_vec3_copy(view_dir, latest_view_dir);
-            printf("regen\n");
+            // printf("regen\n");
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -355,6 +361,10 @@ int main()
         glfwSwapBuffers(window);
 
         dt = glfwGetTime() - frame_begin_time;
+
+        // if (frame % 100 == 0) printf("dt: %f ms\n", dt*1000);
+
+        frame++;
     }
 
     free(vert_data);
