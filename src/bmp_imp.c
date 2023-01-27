@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <math.h>
 
-void bmp_load(const char** addresses, uint32_t num_addresses, uint8_t** bitmap, uint32_t* bmp_res){
+void bmp_load(char* const* addresses, uint32_t num_addresses, uint8_t** bitmap, uint32_t* bmp_res){
     uint32_t insert_offset = 0;
 
     bool bitmap_initted = false;

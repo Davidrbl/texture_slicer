@@ -5,8 +5,6 @@
 #include <assert.h>
 #include <string.h>
 
-// #define SLICE_DEBUG_PRINT
-
 #define MAX_VERTS_PER_SLICE 6
 
 float cost_between_vertices
@@ -92,8 +90,6 @@ void shortest_path(vec3 vertices[MAX_VERTS_PER_SLICE], int n, int* best_route)
 			if (i == j) graph[i][j] = 0.0f;
 			else graph[i][j] = cost_between_vertices(vertices[i], vertices[j]);
 		}
-    // printf("a\n");
-			
 	}
 
 
@@ -141,14 +137,6 @@ void slice(
     uint32_t vert_offset
 )
 {
-    #ifdef SLICE_DEBUG_PRINT
-    printf(
-        "slice() called with:\n\tview_dir -> %f %f %f\n\tdl -> %f\n", 
-        view_dir[0], view_dir[1], view_dir[2],
-        dl     
-    );
-    #endif
-
     vec3 cube_verts[8] = {
                             // xyz
         {-1.0, -1.0, -1.0}, // ---
@@ -162,20 +150,20 @@ void slice(
     };
 
     uint8_t cube_edges[12][2] = {
-        {0, 1}, // 
-        {1, 2}, // 
-        {2, 3}, // 
-        {3, 0}, // 
+        {0, 1}, 
+        {1, 2}, 
+        {2, 3}, 
+        {3, 0}, 
 
-        {4, 5}, // 
-        {5, 6}, // 
-        {6, 7}, // 
-        {7, 4}, // 
+        {4, 5}, 
+        {5, 6}, 
+        {6, 7}, 
+        {7, 4}, 
 
-        {0, 4}, // 
-        {1, 5}, // 
-        {2, 6}, // 
-        {3, 7}, // 
+        {0, 4}, 
+        {1, 5}, 
+        {2, 6}, 
+        {3, 7}
     };
 
 
@@ -219,19 +207,10 @@ void slice(
             intersection_edges[num_intersections][1] = Vj_index;
             t_intersection[num_intersections] = t;
             num_intersections++;
-
-#ifdef SLICE_DEBUG_PRINT
-            printf("between vertex %hhu and %hhu, t = %f\n", Vi_index, Vj_index, t);
-#endif
         }
     }
 
     *vert_size = num_intersections * 6*sizeof(float);
-    // *vert_data = malloc(*vert_size);
-
-#ifdef SLICE_DEBUG_PRINT
-    printf("num_intersections = %u\nvert_size = %u\n", num_intersections, *vert_size);
-#endif
 
     vec3 positions[MAX_VERTS_PER_SLICE];
     int32_t shortest_route[MAX_VERTS_PER_SLICE];
@@ -255,7 +234,6 @@ void slice(
         glm_vec3_copy(intersection_pos, positions[i]);
     }
 
-    // printf("num_intersections -> %u\n", num_intersections);
     shortest_path(positions, num_intersections, shortest_route);
 
     for (uint32_t i = 0; i < num_intersections; i++)
@@ -277,11 +255,6 @@ void slice(
         vert_data[vert_offset++] = vertex_tex_coord[0];
         vert_data[vert_offset++] = vertex_tex_coord[1];
         vert_data[vert_offset++] = vertex_tex_coord[2];
-
-        // glm_vec3_copy(vertex_pos, vert_data+vertex_offset);
-        // vertex_offset += 3;
-        // glm_vec3_copy(vertex_tex_coord, vert_data+vertex_offset);
-        // vertex_offset += 3;
     }
 }
 
@@ -313,7 +286,6 @@ void gen_texture_slices(
         );
 
         slice_len[i] = slice_size;
-        // *vert_size += slice_size;
     }
 
 }

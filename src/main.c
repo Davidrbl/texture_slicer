@@ -82,106 +82,35 @@ int main()
         &main_program
     );
 
-    uint32_t test_compute_program;
-    create_program_compute(
-        "src/shaders/test.comp",
-        &test_compute_program
-    );
+    #define CT_COUNT_BEGIN 36
+    #define CT_COUNT_END 102
 
-    uint32_t test_counter = 0;
+    // we define these so the addresses array will have a constant size for the compiler, to avoid variable length arrays
 
-    uint32_t test_counter_buffer;
-    glCreateBuffers(1, &test_counter_buffer);
-    glNamedBufferData(test_counter_buffer, sizeof(uint32_t), &test_counter, GL_DYNAMIC_READ);
-    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, test_counter_buffer);
-    // glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, test_counter_buffer, 0, sizeof(uint32_t));
+    char* addresses[CT_COUNT_END - CT_COUNT_BEGIN + 1];
 
-    glUseProgram(test_compute_program);
-    glDispatchCompute(10, 10, 10);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    uint32_t num_addresses = CT_COUNT_END-CT_COUNT_BEGIN + 1;
 
-    uint32_t* result = glMapNamedBuffer(test_counter_buffer, GL_READ_ONLY);
+    uint32_t address_str_len = sizeof("ct/IXXX.bmp")/sizeof(char);
 
-    printf("counter -> %u\n", *result);
+    for (uint32_t ct_count = CT_COUNT_BEGIN; ct_count <= CT_COUNT_END; ct_count++)
+    {
+        uint32_t i = ct_count - CT_COUNT_BEGIN;
 
-    glUnmapNamedBuffer(test_counter_buffer);
+        addresses[i] = calloc(address_str_len, sizeof(char));
 
-    const char* addresses[] = {
-        "ct/I36.bmp",
-        "ct/I37.bmp",
-        "ct/I38.bmp",
-        "ct/I39.bmp",
-        "ct/I40.bmp",
-        "ct/I41.bmp",
-        "ct/I42.bmp",
-        "ct/I43.bmp",
-        "ct/I44.bmp",
-        "ct/I45.bmp",
-        "ct/I46.bmp",
-        "ct/I47.bmp",
-        "ct/I48.bmp",
-        "ct/I49.bmp",
-        "ct/I50.bmp",
-        "ct/I51.bmp",
-        "ct/I52.bmp",
-        "ct/I53.bmp",
-        "ct/I54.bmp",
-        "ct/I55.bmp",
-        "ct/I56.bmp",
-        "ct/I57.bmp",
-        "ct/I58.bmp",
-        "ct/I59.bmp",
-        "ct/I60.bmp",
-        "ct/I61.bmp",
-        "ct/I62.bmp",
-        "ct/I63.bmp",
-        "ct/I64.bmp",
-        "ct/I65.bmp",
-        "ct/I66.bmp",
-        "ct/I67.bmp",
-        "ct/I68.bmp",
-        "ct/I69.bmp",
-        "ct/I70.bmp",
-        "ct/I71.bmp",
-        "ct/I72.bmp",
-        "ct/I73.bmp",
-        "ct/I74.bmp",
-        "ct/I75.bmp",
-        "ct/I76.bmp",
-        "ct/I77.bmp",
-        "ct/I78.bmp",
-        "ct/I79.bmp",
-        "ct/I80.bmp",
-        "ct/I81.bmp",
-        "ct/I82.bmp",
-        "ct/I83.bmp",
-        "ct/I84.bmp",
-        "ct/I85.bmp",
-        "ct/I86.bmp",
-        "ct/I87.bmp",
-        "ct/I88.bmp",
-        "ct/I89.bmp",
-        "ct/I90.bmp",
-        "ct/I91.bmp",
-        "ct/I92.bmp",
-        "ct/I93.bmp",
-        "ct/I94.bmp",
-        "ct/I95.bmp",
-        "ct/I96.bmp",
-        "ct/I97.bmp",
-        "ct/I98.bmp",
-        "ct/I99.bmp",
-        "ct/I100.bmp",
-        "ct/I101.bmp",
-        "ct/I102.bmp"
-    };
-
-    uint32_t num_addresses = sizeof(addresses)/sizeof(char*);
+        sprintf(addresses[i], "ct/I%u.bmp", ct_count);
+    }
 
     uint8_t* bitmap_data = NULL;
     uint32_t bitmap_res = 0;
     bmp_load(addresses, num_addresses, &bitmap_data, &bitmap_res);
     printf("Loaded bmp succesfully!\nres = %u\n", bitmap_res);
+
+    for (uint32_t i = 0; i <= CT_COUNT_END - CT_COUNT_BEGIN; i++)
+    {
+        free(addresses[i]);
+    }
 
     Texture_t bmp_tex;
     glCreateTextures(GL_TEXTURE_3D, 1, &bmp_tex);
@@ -227,19 +156,6 @@ int main()
         &vert_size,     // vert_size
         slice_len       // slice_len 
     );
-
-    // printf("%u\n", vert_size);
-    // for (uint32_t i = 0; i < vert_size/6/sizeof(float); i++)
-    // {
-    //     printf("vertex %u:\n", i);
-    //     printf("\tpos -> %f\n", vert_data[i*6 + 0]);
-    //     printf("\tpos -> %f\n", vert_data[i*6 + 1]);
-    //     printf("\tpos -> %f\n", vert_data[i*6 + 2]);
-
-    //     printf("\ttex -> %f\n", vert_data[i*6 + 3]);
-    //     printf("\ttex -> %f\n", vert_data[i*6 + 4]);
-    //     printf("\ttex -> %f\n", vert_data[i*6 + 5]);
-    // }
 
     Buffer_t main_VBO;
     glCreateBuffers(1, &main_VBO);
@@ -333,7 +249,6 @@ int main()
             glNamedBufferData(main_VBO, vert_size, vert_data, GL_DYNAMIC_DRAW);
 
             glm_vec3_copy(view_dir, latest_view_dir);
-            // printf("regen\n");
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -362,7 +277,6 @@ int main()
 
         dt = glfwGetTime() - frame_begin_time;
 
-        // if (frame % 100 == 0) printf("dt: %f ms\n", dt*1000);
 
         frame++;
     }
