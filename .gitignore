@@ -1,3 +1,4 @@
+/build/
 /main*
-/obj/
-/dep/
+/glfw3.dll
+/include/glfw/

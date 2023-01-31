@@ -1,9 +1,10 @@
 #include <stdint.h>
-#include "cglm/call.h"
 #include <stdbool.h>
 #include <math.h>
 #include <assert.h>
 #include <string.h>
+
+#include <cglm/call.h>
 
 #define MAX_VERTS_PER_SLICE 6
 

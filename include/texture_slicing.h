@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
-#include "cglm/call.h"
+
+#include <cglm/call.h>
 
 #define MAX_VERTS_PER_SLICE 6
 

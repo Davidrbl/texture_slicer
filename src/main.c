@@ -3,8 +3,9 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "gl.h"
-#include "glfw3.h"
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
+
 #include "shader.h"
 
 #include "bmp_imp.h"
@@ -39,7 +40,7 @@ void GLAPIENTRY gl_debug_callback(
             source, type, id, severity, length, message, userParam);
 }
 
-int main()
+int main(void)
 {
     if (!glfwInit()) panic(1, "GLFW init fail!\n");
 
